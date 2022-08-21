@@ -13,7 +13,7 @@ struct K {
     static let characters = "\(main)/character"
     static let episodes = "\(main)/episode"
   }
-  
+
   static let statusesColors: [StatusData : Color] = [
     .Alive: .green,
     .Dead: .red,

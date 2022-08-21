@@ -6,23 +6,23 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct SelectedCharacterView: View {
   @State var selectedCharacter: CharacterModel
-  @StateObject var alsoFromViewModel = AlsoFromViewModel()
-  
+  @StateObject var alsoFromVM = AlsoFromViewModel()
+
   var body: some View {
     List {
       HStack(alignment: .top) {
-        AsyncImage(url: selectedCharacter.imageURL) { image in
-          image.resizable()
-            .aspectRatio(contentMode: .fit)
-            .frame(maxWidth: 125, maxHeight: 125)
-            .cornerRadius(10)
-        } placeholder: {
-          ProgressView()
-            .frame(width: 125, height: 125)
-        }
+        KFImage(selectedCharacter.imageURL)
+          .resizable()
+          .placeholder({
+            ProgressView()
+          })
+          .aspectRatio(contentMode: .fit)
+          .frame(width: 125, height: 125)
+          .cornerRadius(10)
         VStack(alignment: .leading, spacing: 0) {
           Text("Last known location:")
             .foregroundColor(Color("OrangeColor"))
@@ -49,53 +49,42 @@ struct SelectedCharacterView: View {
               .foregroundColor(.secondary)
               .font(.subheadline)
           }
-          
         }
       }
       .listRowSeparator(.hidden)
-      Section(header: Text("Also from \"\(selectedCharacter.location.name)\"").font(.title).bold().foregroundColor(.primary)) {
-        ForEach(alsoFromViewModel.characters, id: \.id) { item in
-          Button {
-            swapSelectedCharacter(with: item)
-          } label: {
-            CharacterCardView(character: item)
+      if alsoFromVM.characters.count > 0 {
+        Section {
+          ForEach(alsoFromVM.characters, id: \.id) { item in
+            Button {
+              swapSelectedCharacter(with: item)
+            } label: {
+              CharacterCardView(character: item)
+            }
           }
+        } header: {
+          Text("Also from \"\(selectedCharacter.location.name)\"")
+            .font(.title)
+            .bold()
+            .foregroundColor(.primary)
         }
+        .listRowSeparator(.hidden)
       }
-      .listRowSeparator(.hidden)
+      if alsoFromVM.isLoading {
+        ProgressView()
+          .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
+          .listRowSeparator(.hidden)
+      }
     }
     .environment(\.defaultMinListRowHeight, 120)
     .listStyle(.inset)
     .navigationTitle(selectedCharacter.name)
-    .onAppear(perform: fetchLocation)
-  }
-  
-  private func fetchLocation() {
-    Helpers.fetchData(with: selectedCharacter.location.url, completionHandler: fetchCharacters)
-  }
-  
-  private func fetchCharacters(at location: LocationData) {
-    if location.residents.count > 0 {
-      let charactersIds = location.residents.map { item in
-        item.replacingOccurrences(of: "\(K.URLS.characters)/", with: "")
-      }.filter { item in
-        item != String(selectedCharacter.id)
-      }
-      let charactersUrl = "\(K.URLS.characters)/\(charactersIds.joined(separator: ","))"
-      if charactersIds.count == 1 {
-        Helpers.fetchData(with: charactersUrl) { (dataResponse: CharacterData) in
-          alsoFromViewModel.fetchEpisodes(for: [dataResponse])
-        }
-      } else {
-        Helpers.fetchData(with: charactersUrl, completionHandler: alsoFromViewModel.fetchEpisodes)
-      }
-    } else {
-      alsoFromViewModel.fetchEpisodes(for: [])
+    .onAppear {
+      alsoFromVM.fetchLocation(for: selectedCharacter)
     }
   }
-  
+
   private func swapSelectedCharacter(with character: CharacterModel) {
-    alsoFromViewModel.swapCharacters(oldCharacter: selectedCharacter, newCharacter: character)
+    alsoFromVM.swapCharacters(oldCharacter: selectedCharacter, newCharacter: character)
     selectedCharacter = character
   }
 }

@@ -6,35 +6,34 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct CharacterCardView: View {
   let character: CharacterModel
 
   var body: some View {
     HStack {
-      AsyncImage(url: character.imageURL) { image in
-        image.resizable()
-          .aspectRatio(contentMode: .fit)
-          .frame(maxWidth: 100, maxHeight: 100)
-      } placeholder: {
-        ProgressView()
-          .frame(width: 100, height: 100)
-      }
-
+      KFImage(character.imageURL)
+        .resizable()
+        .placeholder({
+          ProgressView()
+        })
+        .aspectRatio(contentMode: .fit)
+        .frame(width: 100, height: 100)
       VStack(alignment: .leading) {
         Text(character.name)
           .foregroundColor(Color("OrangeColor"))
           .font(.title2)
           .bold()
         Text(character.location.name)
-          .foregroundColor(.secondary)
+          .foregroundColor(.gray)
           .font(.headline)
         if character.firstSeenEpisode.count > 0 {
           Text("Episode:")
-            .foregroundColor(.secondary)
+            .foregroundColor(.gray)
             .font(.headline)
           Text(character.firstSeenEpisode)
-            .foregroundColor(.secondary)
+            .foregroundColor(.gray)
             .font(.subheadline)
         }
       }

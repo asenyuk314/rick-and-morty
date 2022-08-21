@@ -9,6 +9,7 @@ import Foundation
 
 class CharactersViewModel: ObservableObject {
   @Published var characters: [CharacterModel] = []
+  @Published var isLoading = false
 
   func fetchEpisodes(for characters: [CharacterData]) {
     var episodesSet: Set<String> = []
@@ -22,10 +23,14 @@ class CharactersViewModel: ObservableObject {
     if episodesSet.count == 1 {
       Helpers.fetchData(with: episodesUrl) { (dataResponse: EpisodeData) in
         self.parseCharacters(characters: characters, episodes: [dataResponse])
+      } errorHandler: {
+        self.fetchErrorHandler()
       }
     } else {
       Helpers.fetchData(with: episodesUrl) { (dataResponse: [EpisodeData]) in
         self.parseCharacters(characters: characters, episodes: dataResponse)
+      } errorHandler: {
+        self.fetchErrorHandler()
       }
     }
   }
@@ -42,8 +47,16 @@ class CharactersViewModel: ObservableObject {
   }
 
   func updateCharacters(with characters: [CharacterModel]) {
+    setIsLoading(false)
+  }
+
+  func fetchErrorHandler() {
+    setIsLoading(false)
+  }
+
+  func setIsLoading(_ nextIsLoading: Bool) {
     DispatchQueue.main.async {
-      self.characters.append(contentsOf: characters)
+      self.isLoading = nextIsLoading
     }
   }
 }

@@ -12,7 +12,7 @@ struct SelectedCharacterView: View {
   @StateObject var alsoFromViewModel = AlsoFromViewModel()
   
   var body: some View {
-    VStack(alignment: .leading) {
+    List {
       HStack(alignment: .top) {
         AsyncImage(url: selectedCharacter.imageURL) { image in
           image.resizable()
@@ -52,26 +52,20 @@ struct SelectedCharacterView: View {
           
         }
       }
-      .padding(EdgeInsets(top: 0, leading: 25, bottom: 0, trailing: 25))
-      if alsoFromViewModel.characters.count > 0 {
-        Text("Also from \"\(selectedCharacter.location.name)\"")
-          .font(.title)
-          .bold()
-          .padding(EdgeInsets(top: 0, leading: 25, bottom: 0, trailing: 25))
-      }
-      List {
+      .listRowSeparator(.hidden)
+      Section(header: Text("Also from \"\(selectedCharacter.location.name)\"").font(.title).bold().foregroundColor(.primary)) {
         ForEach(alsoFromViewModel.characters, id: \.id) { item in
           Button {
             swapSelectedCharacter(with: item)
           } label: {
             CharacterCardView(character: item)
           }
-          .listRowSeparator(.hidden)
         }
       }
-      .environment(\.defaultMinListRowHeight, 120)
-      .listStyle(.inset)
+      .listRowSeparator(.hidden)
     }
+    .environment(\.defaultMinListRowHeight, 120)
+    .listStyle(.inset)
     .navigationTitle(selectedCharacter.name)
     .onAppear(perform: fetchLocation)
   }

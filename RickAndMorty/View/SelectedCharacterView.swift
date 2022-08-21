@@ -12,17 +12,16 @@ struct SelectedCharacterView: View {
   @StateObject var alsoFromViewModel = AlsoFromViewModel()
   
   var body: some View {
-    VStack {
-      Text(selectedCharacter.name)
-        .font(.largeTitle)
-        .bold()
-      HStack {
+    VStack(alignment: .leading) {
+      HStack(alignment: .top) {
         AsyncImage(url: selectedCharacter.imageURL) { image in
           image.resizable()
             .aspectRatio(contentMode: .fit)
-            .frame(maxWidth: 200, maxHeight: 200)
+            .frame(maxWidth: 125, maxHeight: 125)
+            .cornerRadius(10)
         } placeholder: {
           ProgressView()
+            .frame(width: 125, height: 125)
         }
         VStack(alignment: .leading, spacing: 0) {
           Text("Last known location:")
@@ -53,9 +52,12 @@ struct SelectedCharacterView: View {
           
         }
       }
+      .padding(EdgeInsets(top: 0, leading: 25, bottom: 0, trailing: 25))
       if alsoFromViewModel.characters.count > 0 {
-        Text("Also from \(selectedCharacter.location.name)")
+        Text("Also from \"\(selectedCharacter.location.name)\"")
           .font(.title)
+          .bold()
+          .padding(EdgeInsets(top: 0, leading: 25, bottom: 0, trailing: 25))
       }
       List {
         ForEach(alsoFromViewModel.characters, id: \.id) { item in
@@ -64,9 +66,13 @@ struct SelectedCharacterView: View {
           } label: {
             CharacterCardView(character: item)
           }
+          .listRowSeparator(.hidden)
         }
       }
+      .environment(\.defaultMinListRowHeight, 120)
+      .listStyle(.inset)
     }
+    .navigationTitle(selectedCharacter.name)
     .onAppear(perform: fetchLocation)
   }
   

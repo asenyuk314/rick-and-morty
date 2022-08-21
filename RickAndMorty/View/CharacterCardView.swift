@@ -15,15 +15,17 @@ struct CharacterCardView: View {
       AsyncImage(url: character.imageURL) { image in
         image.resizable()
           .aspectRatio(contentMode: .fit)
-          .frame(maxWidth: 200, maxHeight: 200)
+          .frame(maxWidth: 100, maxHeight: 100)
       } placeholder: {
         ProgressView()
+          .frame(width: 100, height: 100)
       }
 
       VStack(alignment: .leading) {
         Text(character.name)
           .foregroundColor(Color("OrangeColor"))
-          .font(.title)
+          .font(.title2)
+          .bold()
         Text(character.location.name)
           .foregroundColor(.secondary)
           .font(.headline)
@@ -37,6 +39,10 @@ struct CharacterCardView: View {
         }
       }
     }
+    .frame(minWidth: 0, maxWidth: .infinity, minHeight: 100, maxHeight: 100, alignment: .leading)
+    .background(.white)
+    .cornerRadius(10)
+    .shadow(color: .gray, radius: 10, x: 0, y: 10)
   }
 }
 

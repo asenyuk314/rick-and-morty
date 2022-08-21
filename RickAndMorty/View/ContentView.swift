@@ -15,9 +15,7 @@ struct ContentView: View {
     NavigationView {
       List {
         ForEach(Array(charactersViewModel.characters.enumerated()), id: \.element.id) { index, item in
-          NavigationLink {
-            SelectedCharacterView(selectedCharacter: item)
-          } label: {
+          ZStack {
             CharacterCardView(character: item)
               .onAppear {
                 if index == charactersViewModel.characters.count - 1 {
@@ -26,9 +24,17 @@ struct ContentView: View {
                   }
                 }
               }
+            NavigationLink(destination: SelectedCharacterView(selectedCharacter: item)) {
+              EmptyView()
+            }
+            .opacity(0)
           }
+          .listRowSeparator(.hidden)
         }
       }
+      .environment(\.defaultMinListRowHeight, 120)
+      .listStyle(.inset)
+      .navigationTitle("Rick and Morty")
     }
     .onAppear {
       fetchCharactersPage(with: K.URLS.characters)
